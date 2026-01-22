@@ -1,0 +1,16 @@
+{
+    "name": "Leaderboard",
+    "alias": "leaderboard",
+    "description": "Leaderboard is a feature that ranks users based on their performance, achievements, or contributions within a platform or community.",
+    "version": "1.0.0",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": [],
+    "xilancerMetaData": {
+        "pluginType": "external",
+        "version": "1.0.0",
+        "author": "Adigun Miracle",
+        "admin_settings": []
+    }
+}
