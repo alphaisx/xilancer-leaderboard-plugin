@@ -2,15 +2,27 @@
     "name": "Leaderboard",
     "alias": "leaderboard",
     "description": "Leaderboard is a feature that ranks users based on their performance, achievements, or contributions within a platform or community.",
-    "version": "1.0.0",
     "keywords": [],
     "priority": 0,
-    "providers": [],
+    "providers": [
+        "Modules\\Leaderboard\\Providers\\LeaderboardServiceProvider"
+    ],
     "files": [],
     "xilancerMetaData": {
-        "pluginType": "external",
-        "version": "1.0.0",
+        "plugin_type": "external",
         "author": "Adigun Miracle",
-        "admin_settings": []
+        "admin_settings": {
+            "menu_item": [
+                {
+                    "id": "leaderboard-menu",
+                    "label": "Leaderboard",
+                    "route": "admin.leaderboard.all",
+                    "parent": null,
+                    "icon": "fa-solid fa-ranking-star",
+                    "permissions": "manage-leaderboard",
+                    "class": "bg-danger"
+                }
+            ]
+        }
     }
 }

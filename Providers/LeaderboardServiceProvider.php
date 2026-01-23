@@ -1,18 +1,28 @@
 <?php
 
-use Illuminate\Support\Facades\Event;
-use Modules\Referral\Events\ReferralCommissionCredited;
-use Modules\Leaderboard\Listeners\UpdateReferralEarningsLeaderboard;
+namespace Modules\Leaderboard\Providers;
+
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 
-class DummyPluginServiceProvider extends ServiceProvider
+class LeaderboardServiceProvider extends ServiceProvider
 {
+    protected string $moduleName = 'Leaderboard';
+    protected string $moduleNameLower = 'leaderboard';
     public function boot()
     {
-        Event::listen(
-            ReferralCommissionCredited::class,
-            [UpdateReferralEarningsLeaderboard::class, 'handle']
-        );
+        $this->mapWebRoutes();
+        $this->loadViewsFrom(module_path($this->moduleName, 'Views'), $this->moduleNameLower);
+    }
+    /**
+     * Define the "web" routes for the module.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes(): void
+    {
+        Route::middleware(['web'])
+            ->group(module_path($this->moduleName, '/Http/Routes/web.php'));
     }
 }
