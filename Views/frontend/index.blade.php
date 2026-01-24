@@ -195,12 +195,18 @@
                                             @endif
                                         </h5>
                                         <small class="text-muted d-block mb-2">
-                                            {{ optional($topThree[$rankIndex]->user->user_introduction)->title ?? '' }}
+                                            {{ optional($topThree[$rankIndex]->user->user_introduction)->title ?? 'Top Freelancer' }}
                                         </small>
                                         @if ($topThree[$rankIndex]->score_snapshot > 10)
                                             <p class="text-primary fw-bold">
                                                 {{ round($topThree[$rankIndex]->score_snapshot * 10) }}
                                                 {{ __('Points') }}</p>
+                                        @endif
+                                        @if ($rankIndex == 0)
+                                            <span class="badge px-3 py-2"
+                                                style="background-color: var(--main-color-one); color: #fff;">
+                                                {{ __('Top Performer') }}
+                                            </span>
                                         @endif
                                     </div>
                                 </a>
