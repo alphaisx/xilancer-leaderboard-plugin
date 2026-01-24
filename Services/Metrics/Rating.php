@@ -17,7 +17,7 @@ class Rating implements MetricInterface
     }
     public function weight(): float
     {
-        return 1.00;
+        return 3.00;
     }
 
     public function resolve(User $user): float

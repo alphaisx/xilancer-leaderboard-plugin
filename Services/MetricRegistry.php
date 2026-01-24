@@ -42,12 +42,14 @@ class MetricRegistry
                     'label' => $m->label(),
                     'weight' => $m->weight(),
                     'value' => round((float) $m->resolve($user), 4),
+                    'total' => $m->weight() * $m->resolve($user),
                 ];
             } catch (\Throwable $e) {
                 $out[$m->key()] = [
                     'label' => $m->label(),
                     'weight' => $m->weight(),
                     'value' => 0,
+                    'total' => $m->weight() * 0,
                 ];
             }
         }
@@ -58,8 +60,7 @@ class MetricRegistry
     {
         $score = 0.0;
         foreach ($metricData as $m) {
-            $score += $m['value'];
-            // $score += ($m['value'] * ($m['weight'] ?? 1));
+            $score += ($m['value'] * ($m['weight'] ?? 1));
         }
         return (float) $score;
     }

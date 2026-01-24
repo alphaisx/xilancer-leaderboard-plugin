@@ -18,7 +18,7 @@ class CreateLeaderboardEntriesTable extends Migration
             $table->timestamp('approved_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->unique(['position', 'is_active'], 'unique_position_active');
+            $table->unique(['position'], 'unique_position');
         });
     }
 

@@ -13,6 +13,11 @@ class LeaderboardServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->mapWebRoutes();
+        // Register Assets to Folder
+        $this->publishes([
+            module_path('Leaderboard', 'Views/assets')
+            => base_path('assets/leaderboard'), # TODO: There is high possibility for this to fail on production, let wait and see
+        ], 'leaderboard-assets');
         $this->loadViewsFrom(module_path($this->moduleName, 'Views'), $this->moduleNameLower);
     }
     /**

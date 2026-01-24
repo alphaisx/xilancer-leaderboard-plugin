@@ -30,9 +30,10 @@ class LeaderboardController extends Controller
 
     public function generateCandidates(Request $request)
     {
+        $number_of_candidates = 18; // fixed number for now
         try {
-            // Collect freelancer users — platform-specific: fallback to users with is_freelancer flag or role
             $users = User::where(function ($q) {
+                // Collect freelancer users — platform-specific: fallback to users with is_freelancer flag or role
                 $q->where('user_type', 2);
             })->get();
             // compute metrics
@@ -50,11 +51,11 @@ class LeaderboardController extends Controller
                 ];
             }
 
-            // dd(collect($payload)->where('score', '>', 15)->sortByDesc('score')->take(20));
-            // store top 20
-            DB::transaction(function () use ($payload) {
+            // store top $number_of_candidates candidates
+            DB::transaction(function () use ($payload, $number_of_candidates) {
                 \Modules\Leaderboard\Entities\Candidate::truncate();
-                $top = collect($payload)->where('score', '>', 15)->sortByDesc('score')->take(20)->values()->all();
+                // If less than 20, just get top 13
+                $top = collect($payload)->sortByDesc('score')->take($number_of_candidates)->values()->all();
 
                 // Using the Model allows the $casts defined above to work
                 \Modules\Leaderboard\Entities\Candidate::insert($top);
@@ -62,7 +63,7 @@ class LeaderboardController extends Controller
         } catch (\Throwable $th) {
             // return 
         }
-        return redirect()->route('admin.leaderboard.all')->with('status', 'Candidates generated');
+        return redirect()->route('admin.leaderboard.all')->with('status', 'Leaderboard candidates generated successfully.');
     }
 
 
@@ -79,7 +80,7 @@ class LeaderboardController extends Controller
 
         DB::transaction(function () use ($candidate, $position) {
             // deactivate any active entry at this position
-            Entry::where('position', $position)->where('is_active', true)->update(['is_active' => false]);
+            Entry::where('position', $position)->delete();
 
             Entry::updateOrCreate(
                 ['user_id' => $candidate->user_id],
@@ -92,8 +93,78 @@ class LeaderboardController extends Controller
                     'is_active' => true,
                 ]
             );
+            // Send notification to user
+            freelancer_notification($candidate->user_id, $candidate->user_id, 'Leaderboard', __('Congratulations on being featured on the leaderboard, a closer step to your goals. Keep the energy up and going!',));
         });
 
-        return back()->with(toastr_success(__('Approved and published successfully')));
+        return back()->with(toastr_success(__('Approved and published successfully.')));
+    }
+
+    public function remove($user_id)
+    {
+        $userId = (int) $user_id;
+
+        $entry = Entry::where('user_id', $userId)->firstOrFail();
+
+        DB::transaction(function () use ($entry) {
+            // deactivate any active entry at this position
+            $entry->delete();
+        });
+
+        return back()->with(toastr_success(__('Leaderboard entry removed successfully.')));
+    }
+
+    public function bulk_actions(Request $request)
+    {
+        $request->validate([
+            'payloads' => 'required|array',
+            'payloads.*.id' => 'required|integer|exists:users,id',
+            'payloads.*.position' => 'required|integer|min:1|max:20',
+            'action' => 'required|string|in:remove,approve_rank',
+        ]);
+        $action = $request->input('action');
+        $payloads = $request->input('payloads');
+
+        try {
+            return DB::transaction(function () use ($payloads, $action) {
+                foreach ($payloads as $payload) {
+                    $userId = $payload['id'];
+                    $position = (int) $payload['position'];
+
+                    if ($action === 'approve_rank') {
+                        $candidate = Candidate::where('user_id', $userId)->firstOrFail();
+
+                        // deactivate any active entry at this position
+                        Entry::where('position', $position)->delete();
+
+                        Entry::updateOrCreate(
+                            ['user_id' => $candidate->user_id],
+                            [
+                                'position' => $position,
+                                'metrics_snapshot' => $candidate->metrics,
+                                'score_snapshot' => $candidate->score,
+                                'approved_by' => Auth::user()->id,
+                                'approved_at' => now(),
+                                'is_active' => true,
+                            ]
+                        );
+                        // Send notification to user
+                        freelancer_notification($candidate->user_id, $candidate->user_id, 'Leaderboard', __('Congratulations on being featured on the leaderboard, a closer step to your goals. Keep the energy up and going!',));
+                    } elseif ($action === 'remove') {
+                        $entry = Entry::where('user_id', $userId)->firstOrFail();
+                        $entry->delete();
+                    }
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => __('Bulk action completed successfully.'),
+                ]);
+            });
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('An error occurred while processing bulk actions.'),
+            ], 500);
+        }
     }
 }

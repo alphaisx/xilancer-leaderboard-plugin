@@ -17,7 +17,7 @@ class TotalReferrals implements MetricInterface
     }
     public function weight(): float
     {
-        return 0.8;
+        return 0.5;
     }
 
     public function resolve(User $user): float
