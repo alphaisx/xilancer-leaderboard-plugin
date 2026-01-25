@@ -1,8 +1,9 @@
 <?php
 
-namespace Modules\Leaderboard\Services\Metrics;
+namespace Modules\Rank\Services\Metrics;
 
-use Modules\Leaderboard\Services\MetricInterface;
+use Modules\Rank\Services\MetricInterface;
+use Modules\Rank\Services\MetricContext;
 use App\Models\User;
 
 class TotalReferrals implements MetricInterface
@@ -20,30 +21,41 @@ class TotalReferrals implements MetricInterface
         return 0.5;
     }
 
-    public function resolve(User $user): float
+    /**
+     * Resolve must NOT run global aggregates.
+     * Uses MetricContext->totalReferralCommissions for global totals.
+     */
+    public function resolve(User $user, ?MetricContext $context = null): float
     {
         if (!function_exists('moduleExists') || !moduleExists('Referral')) {
             return 0;
         }
 
         try {
-            // Assume Referral module exposes a Referral model
             if (!class_exists(\Modules\Referral\Entities\Referral::class)) {
                 return 0;
             }
-            // Overall Table Calculation
-            $total_commissions = \Modules\Referral\Entities\Referral::whereNot('referrer_user_id', null)->where('status', 'approved')->whereNot('commission_processed_at', null)->sum('commission_amount') ?? 0;
 
-            // Users Calculation
-            $total_referrals = \Modules\Referral\Entities\Referral::with(['referrer', 'referredUser'])->where('referrer_user_id', $user->id)->whereHas('referredUser', function ($query) {
-                $query->whereNotNull('id');
-            })->whereHas('referrer', function ($query) {
-                $query->whereNotNull('id');
-            });
-            $total_users_commission = $total_referrals->where('status', 'approved')->sum('commission_amount') ?? 0;
-            $percent = ($total_users_commission / $total_commissions) * 100;
-            // dd($this->label(), $total_commissions, $total_users_commission, $percent);
-            return (float) $total_referrals->count() + $percent;
+            $total_commissions = $context?->totalReferralCommissions ?? 0.0;
+
+            // Per-user referrals only
+            $userReferralsQuery = \Modules\Referral\Entities\Referral::with(['referrer', 'referredUser'])
+                ->where('referrer_user_id', $user->id)
+                ->whereHas('referredUser', function ($query) {
+                    $query->whereNotNull('id');
+                })->whereHas('referrer', function ($query) {
+                    $query->whereNotNull('id');
+                });
+
+            $total_users_commission = (float) $userReferralsQuery->where('status', 'approved')->sum('commission_amount') ?? 0.0;
+            $referrals_count = (int) $userReferralsQuery->count();
+
+            $percent = 0.0;
+            if ($total_commissions > 0.0) {
+                $percent = ($total_users_commission / $total_commissions) * 100.0;
+            }
+
+            return (float) $referrals_count + $percent;
         } catch (\Throwable $e) {
             return 0;
         }

@@ -1,23 +1,24 @@
 <?php
 
-namespace Modules\Leaderboard\Providers;
+namespace Modules\Rank\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 
-class LeaderboardServiceProvider extends ServiceProvider
+class RankServiceProvider extends ServiceProvider
 {
-    protected string $moduleName = 'Leaderboard';
-    protected string $moduleNameLower = 'leaderboard';
+    protected string $moduleName = 'Rank';
+    protected string $moduleNameLower = 'rank';
     public function boot()
     {
         $this->mapWebRoutes();
-        // Register Assets to Folder
+        // Register Rank Assets
         $this->publishes([
-            module_path('Leaderboard', 'Views/assets')
-            => base_path('assets/leaderboard'), # TODO: There is high possibility for this to fail on production, let wait and see
-        ], 'leaderboard-assets');
+            module_path('Rank', 'Views/assets')
+            => base_path('assets/rank'), # TODO: There is high possibility for this to fail on production, let wait and see
+        ], 'rank-assets');
+        // Load Views
         $this->loadViewsFrom(module_path($this->moduleName, 'Views'), $this->moduleNameLower);
     }
     /**

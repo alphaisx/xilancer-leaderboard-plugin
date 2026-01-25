@@ -4,25 +4,22 @@ namespace Modules\Rank\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Entry extends Model
+class Ambassador extends Model
 {
-    protected $table = 'leaderboard_entries';
+    protected $table = 'leaderboard_ambassadors';
 
     protected $fillable = [
         'user_id',
-        'position',
-        'metrics_snapshot',
-        'score_snapshot',
+        'notes',
+        'is_ambassador',
         'approved_by',
         'approved_at',
-        'is_active',
     ];
 
     protected $casts = [
-        'metrics_snapshot' => 'array',
-        'score_snapshot' => 'float',
+        'notes' => 'string',
+        'is_ambassador' => 'boolean',
         'approved_at' => 'datetime',
-        'is_active' => 'boolean',
     ];
 
     public function user()

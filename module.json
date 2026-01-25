@@ -1,11 +1,11 @@
 {
-    "name": "Leaderboard",
-    "alias": "leaderboard",
-    "description": "Leaderboard is a feature that ranks users based on their performance, achievements, or contributions within a platform or community.",
+    "name": "Rank",
+    "alias": "rank",
+    "description": "A complete leaderboard and ambassador management system for your platform.",
     "keywords": [],
     "priority": 0,
     "providers": [
-        "Modules\\Leaderboard\\Providers\\LeaderboardServiceProvider"
+        "Modules\\Rank\\Providers\\RankServiceProvider"
     ],
     "files": [],
     "xilancerMetaData": {
@@ -14,12 +14,29 @@
         "admin_settings": {
             "menu_item": [
                 {
-                    "id": "leaderboard-menu",
-                    "label": "Leaderboard",
-                    "route": "admin.leaderboard.all",
+                    "id": "rank-menu",
+                    "label": "Rank",
+                    "route": "",
                     "parent": null,
                     "icon": "fa-solid fa-ranking-star",
+                    "permissions": "manage-rank",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "leaderboard-submenu",
+                    "label": "Leaderboard",
+                    "route": "admin.leaderboard.all",
+                    "parent": "leaderboard-menu",
+                    "icon": "",
                     "permissions": "manage-leaderboard",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "ambassador-submenu",
+                    "label": "Ambassadors",
+                    "route": "admin.ambassador.all",
+                    "parent": "leaderboard-menu",
+                    "permissions": "manage-ambassadors",
                     "class": "bg-danger"
                 }
             ]

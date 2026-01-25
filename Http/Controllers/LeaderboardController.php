@@ -1,14 +1,15 @@
 <?php
 
-namespace Modules\Leaderboard\Http\Controllers\Admin;
+namespace Modules\Rank\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Modules\Leaderboard\Services\MetricRegistry;
-use Modules\Leaderboard\Entities\Candidate;
-use Modules\Leaderboard\Entities\Entry;
+use Modules\Rank\Services\MetricRegistry;
+use Modules\Rank\Services\MetricContext;
+use Modules\Rank\Entities\Candidate;
+use Modules\Rank\Entities\Entry;
 use Illuminate\Support\Facades\DB;
 
 class LeaderboardController extends Controller
@@ -22,50 +23,87 @@ class LeaderboardController extends Controller
         $this->registry = $registry;
     }
 
-    public function index()
+    public function admin_index()
     {
         $candidates = Candidate::orderByDesc('score')->limit(50)->get();
-        return view('leaderboard::admin.index', compact('candidates'));
+        return view('rank::admin.leaderboard', compact('candidates'));
     }
 
     public function generateCandidates(Request $request)
     {
         $number_of_candidates = 18; // fixed number for now
+
         try {
-            $users = User::where(function ($q) {
-                // Collect freelancer users — platform-specific: fallback to users with is_freelancer flag or role
+            // Build MetricContext ONCE per run (precompute global aggregates)
+            $context = MetricContext::build();
+
+            $topCandidates = []; // fixed-size buffer of top candidates
+
+            // Helper: replace min candidate if needed
+            $maybeInsertTop = function (array $candidate) use (&$topCandidates, $number_of_candidates) {
+                if (empty($topCandidates)) {
+                    $topCandidates[] = $candidate;
+                    return;
+                }
+                if (count($topCandidates) < $number_of_candidates) {
+                    $topCandidates[] = $candidate;
+                    return;
+                }
+                // find index of smallest score
+                $minIdx = 0;
+                $minScore = $topCandidates[0]['score'];
+                for ($i = 1, $len = count($topCandidates); $i < $len; $i++) {
+                    if ($topCandidates[$i]['score'] < $minScore) {
+                        $minScore = $topCandidates[$i]['score'];
+                        $minIdx = $i;
+                    }
+                }
+                if ($candidate['score'] > $minScore) {
+                    $topCandidates[$minIdx] = $candidate;
+                }
+            };
+
+            // Stream users in chunks to scale to 100k+ users
+            User::where(function ($q) {
                 $q->where('user_type', 2);
-            })->get();
-            // compute metrics
-            $payload = [];
-            foreach ($users as $user) {
-                $metrics = $this->registry->resolveAllFor($user);
-                $score = $this->registry->computeScore($metrics);
-                $payload[] = [
-                    'user_id' => $user->id,
-                    'metrics' => json_encode($metrics),
-                    'score' => $score,
-                    'computed_at' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+            })->chunkById(1000, function ($users) use (&$topCandidates, $context, $maybeInsertTop) {
+                foreach ($users as $user) {
+                    try {
+                        $metrics = $this->registry->resolveAllFor($user, $context);
+                        $score = $this->registry->computeScore($metrics);
 
-            // store top $number_of_candidates candidates
-            DB::transaction(function () use ($payload, $number_of_candidates) {
-                \Modules\Leaderboard\Entities\Candidate::truncate();
-                // If less than 20, just get top 13
-                $top = collect($payload)->sortByDesc('score')->take($number_of_candidates)->values()->all();
+                        $candidate = [
+                            'user_id' => $user->id,
+                            'metrics' => json_encode($metrics),
+                            'score' => $score,
+                            'computed_at' => now(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
 
-                // Using the Model allows the $casts defined above to work
-                \Modules\Leaderboard\Entities\Candidate::insert($top);
+                        $maybeInsertTop($candidate);
+                    } catch (\Throwable $e) {
+                        // skip user on failure; avoid halting the entire run
+                        continue;
+                    }
+                }
+            });
+
+            // Persist top candidates (sorted desc by score)
+            $top = collect($topCandidates)->sortByDesc('score')->take($number_of_candidates)->values()->all();
+
+            DB::transaction(function () use ($top) {
+                \Modules\Rank\Entities\Candidate::truncate();
+                if (!empty($top)) {
+                    \Modules\Rank\Entities\Candidate::insert($top);
+                }
             });
         } catch (\Throwable $th) {
-            // return 
+            // swallow or log as appropriate
         }
+
         return redirect()->route('admin.leaderboard.all')->with('status', 'Leaderboard candidates generated successfully.');
     }
-
 
     public function approve(Request $request)
     {
@@ -100,9 +138,12 @@ class LeaderboardController extends Controller
         return back()->with(toastr_success(__('Approved and published successfully.')));
     }
 
-    public function remove($user_id)
+    public function remove(Request $request)
     {
-        $userId = (int) $user_id;
+        $request->validate([
+            'user_id' => 'required|integer|exists:leaderboard_entries,user_id',
+        ]);
+        $userId = (int) $request->input('user_id');
 
         $entry = Entry::where('user_id', $userId)->firstOrFail();
 
@@ -121,6 +162,11 @@ class LeaderboardController extends Controller
             'payloads.*.id' => 'required|integer|exists:users,id',
             'payloads.*.position' => 'required|integer|min:1|max:20',
             'action' => 'required|string|in:remove,approve_rank',
+        ], [
+            'payloads.*.id.exists' => __('The selected user does not exist.'),
+            'payloads.*.position.min' => __('Position must be at least 1.'),
+            'payloads.*.position.max' => __('Position may not be greater than 20.'),
+            'action.in' => __('Invalid action specified. Only "remove" and "approve_rank" are allowed.'),
         ]);
         $action = $request->input('action');
         $payloads = $request->input('payloads');
@@ -151,8 +197,13 @@ class LeaderboardController extends Controller
                         // Send notification to user
                         freelancer_notification($candidate->user_id, $candidate->user_id, 'Leaderboard', __('Congratulations on being featured on the leaderboard, a closer step to your goals. Keep the energy up and going!',));
                     } elseif ($action === 'remove') {
-                        $entry = Entry::where('user_id', $userId)->firstOrFail();
-                        $entry->delete();
+                        try {
+                            $entry = Entry::where('user_id', $userId)->firstOrFail();
+                            $entry->delete();
+                        } catch (\Throwable $e) {
+                            // Entry not found, skip
+                            continue;
+                        }
                     }
                 }
                 return response()->json([
@@ -163,7 +214,7 @@ class LeaderboardController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
-                'message' => __('An error occurred while processing bulk actions.'),
+                'message' => __('An error occurred while processing bulk actions. :error', ['error' => $th->getMessage()]),
             ], 500);
         }
     }

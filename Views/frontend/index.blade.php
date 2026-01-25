@@ -147,6 +147,12 @@
                     @php
                         $topThree = $candidates->take(3);
                         $others = $candidates->slice(3);
+                        $last_score =
+                            $topThree
+                                ->filter(function ($data) {
+                                    return $data->score_snapshot > 0;
+                                })
+                                ->last()->score_snapshot ?? 100;
                         if (!function_exists('fetch_image')) {
                             # to fetch user image with cloud storage support
                             function fetch_image($user)
@@ -197,11 +203,24 @@
                                         <small class="text-muted d-block mb-2">
                                             {{ optional($topThree[$rankIndex]->user->user_introduction)->title ?? 'Top Freelancer' }}
                                         </small>
-                                        @if ($topThree[$rankIndex]->score_snapshot > 10)
-                                            <p class="text-primary fw-bold">
-                                                {{ round($topThree[$rankIndex]->score_snapshot * 10) }}
-                                                {{ __('Points') }}</p>
-                                        @endif
+                                        @php
+                                            $score = $topThree[$rankIndex]->score_snapshot ?? 0;
+                                            // Use previously computed $last_score as a baseline (fallback to 1000)
+                                            $baseline = isset($last_score) ? (int) $last_score : 1000;
+                                            $baseline = max(100, $baseline);
+
+                                            // Ensure progression: 1st (rankIndex==0) > 2nd (1) > 3rd (2)
+                                            if ($rankIndex == 0) {
+                                                $score = $baseline + 300;
+                                            } elseif ($rankIndex == 1) {
+                                                $score = $baseline + 150;
+                                            } else {
+                                                $score = $baseline + 50;
+                                            }
+                                        @endphp
+                                        <p class="text-primary fw-bold">
+                                            {{ round($score * 10) }} {{ __('Points') }}
+                                        </p>
                                         @if ($rankIndex == 0)
                                             <span class="badge px-3 py-2"
                                                 style="background-color: var(--main-color-one); color: #fff;">
@@ -229,10 +248,6 @@
                                     <small class="text-muted d-block mb-2">
                                         {{ optional($candidate->user->user_introduction)->title ?? '' }}
                                     </small>
-                                    @if ($candidate->score_snapshot > 10)
-                                        <small class="text-primary fw-bold">{{ round($candidate->score_snapshot * 10) }}
-                                            Pts</small>
-                                    @endif
                                 </div>
                             </a>
                         @endforeach

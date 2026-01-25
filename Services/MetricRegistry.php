@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Leaderboard\Services;
+namespace Modules\Rank\Services;
 
 use App\Models\User;
 
@@ -33,16 +33,27 @@ class MetricRegistry
         return $this->metrics;
     }
 
-    public function resolveAllFor(User $user): array
+    /**
+     * Resolve all metrics for a user using a prebuilt MetricContext.
+     *
+     * Calls each metric->resolve exactly once and computes 'total' from that single value.
+     *
+     * @param User $user
+     * @param MetricContext|null $context
+     * @return array
+     */
+    public function resolveAllFor(User $user, ?MetricContext $context = null): array
     {
         $out = [];
         foreach ($this->metrics as $m) {
             try {
+                $value = (float) $m->resolve($user, $context);
+                $value = round($value, 4);
                 $out[$m->key()] = [
                     'label' => $m->label(),
                     'weight' => $m->weight(),
-                    'value' => round((float) $m->resolve($user), 4),
-                    'total' => $m->weight() * $m->resolve($user),
+                    'value' => $value,
+                    'total' => $m->weight() * $value,
                 ];
             } catch (\Throwable $e) {
                 $out[$m->key()] = [

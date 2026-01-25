@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Leaderboard\Entities;
+namespace Modules\Rank\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 

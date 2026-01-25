@@ -11,6 +11,11 @@
                     <div class="customMarkup__single__item">
                         <div class="customMarkup__single__item__flex">
                             <h4 class="customMarkup__single__title">{{ __('Leaderboard') }}</h4>
+
+                            {{-- View Leaderboard --}}
+                            <a href="{{ route('frontend.leaderboard.index') }}" target="_blank"
+                                class="btn btn-secondary btn-sm"><i
+                                    class="fa-regular fa-eye"></i>&nbsp;{{ __('View Leaderboard') }}</a>
                         </div>
                         @php
                             $existing = $candidates->isNotEmpty();
@@ -107,8 +112,15 @@
                                                     </td>
                                                     <td>
                                                         @if ($c->entry && $current_position == $new_position)
-                                                            <a href={{ route('admin.leaderboard.remove', ['user_id' => $c->user_id]) }}
-                                                                class="btn btn-sm btn-danger">Remove</a>
+                                                            <form action="{{ route('admin.leaderboard.remove') }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <input type="hidden" name="user_id"
+                                                                    value="{{ $c->user_id }}">
+                                                                <button type="submit"
+                                                                    class="btn btn-sm btn-danger">Remove</button>
+                                                            </form>
                                                         @else
                                                             <a data-bs-toggle="modal" data-bs-target="#approveFormModal"
                                                                 data-user_id="{{ number_format($c->user_id) }}"
@@ -135,7 +147,7 @@
             </div>
         </div>
     </div>
-    @include('leaderboard::components.approve-modal')
+    @include('rank::components.approve-modal')
 @endsection
 
 @section('script')
