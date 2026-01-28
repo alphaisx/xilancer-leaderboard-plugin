@@ -1,7 +1,8 @@
 @extends('frontend.layout.master')
 @section('site_title', __('Leaderboard'))
 @section('script')
-    <script type="module" src="https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-wc@0.8.14/dist/dotlottie-wc.min.js">
+    </script>
 @endsection
 @section('style')
     <style>
@@ -241,5 +242,4 @@
         </section>
     </main>
 
-    <script src="https://unpkg.com"></script>
 @endsection
