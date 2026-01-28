@@ -18,15 +18,19 @@ class LeaderboardController extends Controller
 
     public function __construct(MetricRegistry $registry)
     {
-        $this->middleware('auth');
-        // $this->middleware('can:manage-leaderboard');
         $this->registry = $registry;
     }
 
     public function admin_index()
     {
         $candidates = Candidate::orderByDesc('score')->limit(50)->get();
-        return view('rank::admin.leaderboard', compact('candidates'));
+        return view('rank::admin.leaderboard.manage-leaderboard', compact('candidates'));
+    }
+
+    public function user_index()
+    {
+        $candidates = Entry::where('is_active', true)->orderBy('position')->limit(20)->with('user')->get();
+        return view('rank::frontend.leaderboard.leaderboard-view', compact('candidates'));
     }
 
     public function generateCandidates(Request $request)

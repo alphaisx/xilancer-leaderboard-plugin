@@ -7,7 +7,9 @@
     "providers": [
         "Modules\\Rank\\Providers\\RankServiceProvider"
     ],
-    "files": [],
+    "files": [
+        "helpers.php"
+    ],
     "xilancerMetaData": {
         "plugin_type": "external",
         "author": "Adigun Miracle",
@@ -24,7 +26,7 @@
                 },
                 {
                     "id": "leaderboard-submenu",
-                    "label": "Leaderboard",
+                    "label": "Leaderboard System",
                     "route": "admin.leaderboard.all",
                     "parent": "leaderboard-menu",
                     "icon": "",
@@ -33,7 +35,7 @@
                 },
                 {
                     "id": "ambassador-submenu",
-                    "label": "Ambassadors",
+                    "label": "Ambassadors System",
                     "route": "admin.ambassador.all",
                     "parent": "leaderboard-menu",
                     "permissions": "manage-ambassadors",

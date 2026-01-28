@@ -6,12 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ambassador extends Model
 {
-    protected $table = 'leaderboard_ambassadors';
+    protected $table = 'ambassadors';
 
     protected $fillable = [
         'user_id',
-        'notes',
+        'fullname',
+        'email',
+        'phone',
+        'address',
+        'school',
+        'level',
+        'course',
+        'reason',
         'is_ambassador',
+        'notes',
         'approved_by',
         'approved_at',
     ];

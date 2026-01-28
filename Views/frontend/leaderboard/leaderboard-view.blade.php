@@ -153,22 +153,6 @@
                                     return $data->score_snapshot > 0;
                                 })
                                 ->last()->score_snapshot ?? 100;
-                        if (!function_exists('fetch_image')) {
-                            # to fetch user image with cloud storage support
-                            function fetch_image($user)
-                            {
-                                if ($user?->image) {
-                                    return cloudStorageExist() &&
-                                        in_array(Storage::getDefaultDriver(), ['s3', 'cloudFlareR2', 'wasabi'])
-                                        ? render_frontend_cloud_image_if_module_exists(
-                                            'profile/' . $user->image,
-                                            load_from: $user->load_from,
-                                        )
-                                        : asset('assets/uploads/profile/' . $user->image);
-                                }
-                                return asset('assets/static/img/author/author.jpg');
-                            }
-                        }
                     @endphp
 
                     <!-- Podium Section (Top 3) -->

@@ -1,5 +1,5 @@
 @extends('backend.layout.master')
-@section('title', __('Leaderboard'))
+@section('title', __('Freelancers Leaderboard'))
 @section('style')
     <x-select2.select2-css />
 @endsection
@@ -13,8 +13,7 @@
                             <h4 class="customMarkup__single__title">{{ __('Leaderboard') }}</h4>
 
                             {{-- View Leaderboard --}}
-                            <a href="{{ route('frontend.leaderboard.index') }}" target="_blank"
-                                class="btn btn-secondary btn-sm"><i
+                            <a href="{{ route('user.leaderboard.index') }}" target="_blank" class="btn btn-secondary btn-sm"><i
                                     class="fa-regular fa-eye"></i>&nbsp;{{ __('View Leaderboard') }}</a>
                         </div>
                         @php
@@ -147,7 +146,7 @@
             </div>
         </div>
     </div>
-    @include('rank::components.approve-modal')
+    @include('rank::components.leaderboard.leaderboard-approve-modal')
 @endsection
 
 @section('script')
