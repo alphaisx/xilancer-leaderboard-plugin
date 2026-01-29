@@ -158,7 +158,7 @@ class AmbassadorController extends Controller
     {
         try {
             $ambassador = Ambassador::findOrFail($id);
-            // $ambassador->delete();
+            $ambassador->delete();
 
             return redirect()->back()->with(toastr_success('Ambassador record deleted successfully.'));
         } catch (\Throwable $th) {

@@ -32,7 +32,7 @@
                             <form method="POST" action="{{ route('admin.leaderboard.generate') }}">
                                 @csrf
                                 <button
-                                    class="btn btn-primary mb-3">{{ $existing ? __('Referesh Candidates') : __('Generate Leaderboard Candidates') }}</button>
+                                    class="btn btn-primary mb-3">{{ $existing ? __('Refresh Candidates') : __('Generate Leaderboard Candidates') }}</button>
                             </form>
                             <div class="bulk-delete-wrapper mt-3">
                                 <div class="select-box-wrap">
@@ -96,7 +96,7 @@
                                                     <td>{{ $new_position ? \Illuminate\Support\Number::ordinal($new_position) : '' }}&nbsp;&nbsp;
                                                         @if (!$current_position)
                                                         @elseif ($new_position > $current_position)
-                                                            {{-- Descreased --}}
+                                                            {{-- decreased --}}
                                                             <span>
                                                                 <i class="fa-solid fa-arrow-down text-danger"></i>
                                                                 <small>lower</small>

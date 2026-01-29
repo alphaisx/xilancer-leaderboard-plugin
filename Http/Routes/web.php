@@ -37,7 +37,6 @@ Route::group(['middleware' => ['globalVariable', 'maintains_mode', 'setlang'], '
 
     // Ambassador Form Display & Submission route
     Route::group(['middleware' => ['auth', 'userEmailVerify', 'Google2FA', 'identityVerified']], function () {
-
         Route::get('/become-an-ambassador', [AmbassadorController::class, 'user_form'])->name('ambassador.form');
         Route::post('/ambassador-submit', [AmbassadorController::class, 'submit_form'])->name('ambassador.store');
     });
