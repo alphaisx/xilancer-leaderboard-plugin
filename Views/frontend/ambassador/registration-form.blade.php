@@ -1,74 +1,10 @@
-@extends('frontend.layout.master')
+@extends('frontend.new_design.layout.new_master')
 @section('site_title', __('Become An Ambassador'))
 
 @section('style')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <style>
-        .form-card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            background: #fff;
-            padding: 40px;
-        }
-
-        @media (max-width: 767px) {
-            .form-card {
-                padding: 20px;
-            }
-        }
-
-        .benefits-banner {
-            background: linear-gradient(135deg, var(--main-color-one), #004dbe);
-            color: #fff;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .benefits-banner h3 {
-            color: #fff;
-        }
-
-        .benefits-banner ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .benefits-banner li {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .benefits-banner li i {
-            margin-right: 15px;
-            color: #ffeb3b;
-            font-size: 1.2rem;
-            margin-top: 5px;
-        }
-
-        .btn-primary-accent {
-            background-color: var(--main-color-one);
-            border-color: var(--main-color-one);
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary-accent:hover {
-            background-color: #004dbe;
-            border-color: #004dbe;
-            transform: translateY(-2px);
-        }
-
-        /* Custom Input Focus style for accent color */
-        .form-control:focus,
-        .form-select:focus {
-            border-color: var(--main-color-one);
-            box-shadow: 0 0 0 0.25rem rgba(0, 102, 245, 0.25);
-            /* Adjust opacity of main-color-one */
-        }
-
         /* Modernizing the Select2 container to match Bootstrap 5 */
         .select2-container {
             z-index: 1050 !important;
@@ -82,7 +18,7 @@
             border-radius: 5px;
             display: flex;
             align-items: center;
-            padding: 4px 10px;
+            padding: 0.625rem 1rem;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -105,73 +41,96 @@
 
 @section('content')
     <main>
-        <x-breadcrumb.user-profile-breadcrumb :title="__('Become An Ambassador')" :innerTitle="__('Become An Ambassador')" />
+        <x-breadcrumb.user-profile-breadcrumb-02 :innerTitle="__('Become An Ambassador')" />
+        <section class="py-12 max-w-340 mx-auto px-4 bg-white">
+            <div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
-        <section class="ambassador-area pt-5 pb-5 bg-light">
-            <div class="container">
-                <div class="row justify-content-center">
+                    {{-- BENEFITS --}}
+                    <div class="lg:col-span-5">
+                        <div
+                            class="h-full rounded-3xl p-8 sm:p-10
+                               bg-linear-to-br from-primary to-blue-700
+                               text-white shadow-2xl">
+                            <h3 class="text-2xl font-bold mb-6">
+                                Why Become a Gigafro Ambassador?
+                            </h3>
 
-                    <!-- Benefits Banner Section (Left Column) -->
-                    <div class="col-lg-5 mb-4 mb-lg-0">
-                        <div class="benefits-banner h-100">
-                            <h3 class="mb-4">Why Become a Gigafro Ambassador?</h3>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> Exclusive access to projects and networking events.
-                                </li>
-                                <li><i class="fas fa-check-circle"></i> Earn commissions and performance bonuses.</li>
-                                <li><i class="fas fa-check-circle"></i> Enhance your CV with real-world leadership
-                                    experience.</li>
-                                <li><i class="fas fa-check-circle"></i> Earn higher bonuses on referrals.</li>
-                                <li><i class="fas fa-check-circle"></i> Receive mentorship from industry experts.</li>
-                                <li><i class="fas fa-check-circle"></i> Get featured on our social media platforms.</li>
+                            <ul class="space-y-4">
+                                @foreach (['Exclusive access to projects and networking events', 'Earn commissions and performance bonuses', 'Enhance your CV with real-world leadership experience', 'Earn higher bonuses on referrals', 'Receive mentorship from industry experts', 'Get featured on our social media platforms'] as $benefit)
+                                    <li class="flex items-start gap-3">
+                                        <i class="fas fa-check-circle text-yellow-300 mt-1"></i>
+                                        <span class="text-sm sm:text-base">{{ $benefit }}</span>
+                                    </li>
+                                @endforeach
                             </ul>
-                            <p class="mt-4 text-white">Join an elite community shaping the future of freelancing!</p>
+
+                            <p class="mt-6 text-sm text-white/90">
+                                Join an elite community shaping the future of freelancing.
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Application Form Section (Right Column) -->
-                    <div class="col-lg-7">
-                        <div class="form-card">
-                            <h4 class="mb-4">{{ __('Ambassador Application Form') }}</h4>
-                            <p class="text-muted mb-4">Complete the details below to submit your application to join our
-                                team.</p>
+                    {{-- FORM --}}
+                    <div class="lg:col-span-7">
+                        <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 h-full">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-2">
+                                {{ __('Ambassador Application Form') }}
+                            </h4>
+                            <p class="text-sm text-gray-500 mb-6">
+                                Complete the details below to submit your application.
+                            </p>
 
                             <form id="ambassadorForm">
                                 @csrf
-                                <!-- Personal Details Grid Row -->
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-4 col-form-group">
-                                        <label class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" name="fullname"
-                                            value="{{ auth()->user()->fullname ?? '' }}" readonly>
+
+                                {{-- USER INFO --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">Full Name</label>
+                                        <input type="text" {{ auth()?->user()?->fullname ? 'readonly' : '' }}
+                                            name="fullname" value="{{ auth()->user()->fullname ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border border-gray-300 {{ auth()?->user()?->fullname ? 'bg-gray-100' : 'focus:ring-2 focus:ring-primary/40 focus:outline-none' }} text-gray-700 px-4 py-2.5" />
                                     </div>
-                                    <div class="col-md-4 col-form-group">
-                                        <label class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" name="email"
-                                            value="{{ auth()->user()->email ?? '' }}" readonly>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">Email</label>
+                                        <input type="email" {{ auth()?->user()?->email ? 'readonly' : '' }} name="email"
+                                            value="{{ auth()->user()->email ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border border-gray-300 {{ auth()?->user()?->email ? 'bg-gray-100' : 'focus:ring-2 focus:ring-primary/40 focus:outline-none' }} text-gray-700 px-4 py-2.5" />
                                     </div>
-                                    <div class="col-md-4 col-form-group">
-                                        <label class="form-label">Phone</label>
-                                        <input type="text" class="form-control" name="phone"
-                                            value="{{ auth()->user()->phone ?? '' }}" readonly>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">Phone</label>
+                                        <input type="text" {{ auth()?->user()?->phone ? 'readonly' : '' }} name="phone"
+                                            value="{{ auth()->user()->phone ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border border-gray-300 {{ auth()?->user()?->phone ? 'bg-gray-100' : 'focus:ring-2 focus:ring-primary/40 focus:outline-none' }} text-gray-700 px-4 py-2.5" />
                                     </div>
                                 </div>
 
-                                <!-- Academic Details Grid Row -->
-                                <div class="row g-3 mb-3 position-relative">
-                                    <div class="col-12">
-                                        <label class="form-label">Tertiary Institution Name (Africa)</label>
-                                        <select class="form-control institution-select" name="school" required>
+                                {{-- ACADEMIC --}}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                                    <div class="md:col-span-2">
+                                        <label class="text-sm font-medium text-gray-600">
+                                            Tertiary Institution (Africa)
+                                        </label>
+                                        <select name="school" required class="institution-select px-4 py-2.5 w-full">
                                             <option value="">Search for your university...</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Course of Study</label>
-                                        <input type="text" class="form-control" name="course" required>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">Course of Study</label>
+                                        <input type="text" name="course" required
+                                            placeholder="Enter your course of study"
+                                            class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-primary/40 focus:outline-none" />
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Level</label>
-                                        <select class="form-select" name="level" required>
+
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">Level</label>
+                                        <select name="level" required
+                                            class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2.5
+                                               focus:ring-2 focus:ring-primary/40 focus:outline-none">
                                             <option value="">Select Level</option>
                                             <option value="100L">100 Level</option>
                                             <option value="200L">200 Level</option>
@@ -184,18 +143,27 @@
                                     </div>
                                 </div>
 
-                                <!-- Motivation Textarea -->
-                                <div class="mb-4">
-                                    <label class="form-label">Why are you a great fit for this role?</label>
-                                    <textarea class="form-control" name="reason" rows="4"
-                                        placeholder="Describe your leadership skills, influence, and motivation." required></textarea>
+                                {{-- MOTIVATION --}}
+                                <div class="mb-6">
+                                    <label class="text-sm font-medium text-gray-600">
+                                        Why are you a great fit?
+                                    </label>
+                                    <textarea name="reason" rows="4" required
+                                        class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3
+                                           focus:ring-2 focus:ring-primary/40 focus:outline-none"
+                                        placeholder="Describe your leadership skills, influence, and motivation"></textarea>
                                 </div>
 
-                                <button type="submit" class="btn btn-md btn-primary-accent w-100" id="submitBtn">Submit
-                                    Application</button>
+                                {{-- SUBMIT --}}
+                                <button type="submit" id="submitBtn"
+                                    class="w-full py-3 rounded-xl bg-primary text-white font-semibold
+                                       hover:bg-primary/90 transition active:scale-95">
+                                    Submit Application
+                                </button>
                             </form>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
@@ -269,7 +237,7 @@
                             confirmButtonColor: 'var(--main-color-one)'
                         }).then(() => {
                             window.location.href =
-                                "{{ Auth::guard('web')->user()->user_type == 1 ? route('client.dashboard') : route('freelancer.dashboard') }}";
+                                "{{ Auth::guard('web')?->user()?->user_type == 1 ? route('client.dashboard') : route('freelancer.dashboard') }}";
                         });
                     },
                     error: function(xhr) {

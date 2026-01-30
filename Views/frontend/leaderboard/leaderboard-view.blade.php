@@ -7,8 +7,8 @@
 @section('content')
     <main>
         <x-breadcrumb.user-profile-breadcrumb-02 :innerTitle="__('Leaderboard')" />
-        <section class="leaderboard-area pt-12 pb-24 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 space-y-12">
+        <section class="leaderboard-area pt-12 pb-24 bg-white">
+            <div class="max-w-340 mx-auto px-4 space-y-12">
 
                 @if ($candidates->isEmpty())
                     {{-- Coming Soon --}}
@@ -54,9 +54,9 @@
                                         {{-- target="_blank" class="w-full block" --}}
                                         class="{{ $rankIndex == 0 ? 'order-1 md:order-2' : ($rankIndex == 1 ? 'order-2 md:order-1' : 'order-3') }} w-full">
                                         <div
-                                            class="relative flex items-center flex-col hover:shadow-lg transition-all rounded-2xl  {{ $rankIndex == 0 ? 'border-2 shadow-md border-[var(--main-color-one)] pt-14 pb-10' : 'shadow-md py-10' }}">
+                                            class="relative flex items-center flex-col hover:shadow-lg transition-all rounded-2xl  {{ $rankIndex == 0 ? 'border-2 shadow-md border-(--main-color-one) pt-14 pb-10' : 'shadow-md py-10' }}">
                                             <div
-                                                class="absolute -top-4 left-1/2 transform -translate-x-1/2 w-10 h-10 text-white font-bold z-10 flex items-center justify-center rounded-full {{ $rankIndex == 0 ? 'bg-[var(--main-color-one)]' : 'bg-yellow-800' }}">
+                                                class="absolute -top-4 left-1/2 transform -translate-x-1/2 w-10 h-10 text-white font-bold z-10 flex items-center justify-center rounded-full {{ $rankIndex == 0 ? 'bg-(--main-color-one)' : 'bg-yellow-800' }}">
                                                 {{ $rankIndex + 1 }}
                                             </div>
                                             @if ($rankIndex == 0)
@@ -98,7 +98,7 @@
                                             </p>
                                             @if ($rankIndex == 0)
                                                 <span
-                                                    class="inline-block px-3 py-1 text-sm rounded mt-2 bg-transparent text-[var(--main-color-one)] font-semibold border-2 border-[var(--main-color-one)] border-dashed">
+                                                    class="inline-block px-3 py-1 text-sm rounded mt-2 bg-transparent text-(--main-color-one) font-semibold border-2 border-(--main-color-one) border-dashed">
                                                     {{ __('Top Performer') }}
                                                 </span>
                                             @endif
@@ -134,6 +134,12 @@
                         </div>
                     </div>
                 @endif
+                {{-- Disclaimer --}}
+                <p>
+                    <small class="text-gray-500 text-center block">
+                        {{ __('Note: Rankings are based on a combination of completed projects, client feedback, and overall performance metrics.') }}
+                    </small>
+                </p>
             </div>
         </section>
     </main>

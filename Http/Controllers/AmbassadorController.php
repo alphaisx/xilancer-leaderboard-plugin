@@ -11,10 +11,7 @@ use Modules\Rank\Entities\Ambassador;
 
 class AmbassadorController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    public function __construct() {}
 
     public function admin_index()
     {
@@ -24,11 +21,13 @@ class AmbassadorController extends Controller
 
     public function user_form()
     {
-        $user = Auth::user();
-        $ambassador = Ambassador::where('user_id', $user->id)->first();
-        if ($ambassador && !$ambassador->is_ambassador) {
-            // User has already submitted an application
-            return redirect()->route($user->user_type == 1 ? 'client.dashboard' : 'freelancer.dashboard')->with(toastr_info('You have already submitted an application.'));
+        $user = Auth::guard('web')->user();
+        if ($user) {
+            $ambassador = Ambassador::where('user_id', $user->id)->first();
+            if ($ambassador && !$ambassador->is_ambassador) {
+                // User has already submitted an application
+                return redirect()->route($user->user_type == 1 ? 'client.dashboard' : 'freelancer.dashboard')->with(toastr_info('You have already submitted an application.'));
+            }
         }
 
         return view('rank::frontend.ambassador.registration-form');
