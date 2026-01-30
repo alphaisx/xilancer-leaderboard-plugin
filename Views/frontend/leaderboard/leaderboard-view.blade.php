@@ -133,13 +133,13 @@
                             @endforeach
                         </div>
                     </div>
+                    {{-- Disclaimer --}}
+                    <p>
+                        <small class="text-gray-500 text-center block">
+                            {{ __('Note: Rankings are based on a combination of completed projects, client feedback, and overall performance metrics.') }}
+                        </small>
+                    </p>
                 @endif
-                {{-- Disclaimer --}}
-                <p>
-                    <small class="text-gray-500 text-center block">
-                        {{ __('Note: Rankings are based on a combination of completed projects, client feedback, and overall performance metrics.') }}
-                    </small>
-                </p>
             </div>
         </section>
     </main>

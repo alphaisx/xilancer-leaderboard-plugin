@@ -18,7 +18,7 @@ class RankServiceProvider extends ServiceProvider
         // Register Rank Assets
         $this->publishes([
             module_path('Rank', 'Views/assets')
-            => base_path('assets/'), # TODO: There is high possibility for this to fail on production, let wait and see
+            => base_path('../assets/'),
         ], 'rank-assets');
         // Load Views
         $this->loadViewsFrom(module_path($this->moduleName, 'Views'), $this->moduleNameLower);
